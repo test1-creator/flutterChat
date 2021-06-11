@@ -31,9 +31,11 @@ class Messages extends StatelessWidget {
               }
               return ListView(
                 reverse: true,
-                children:
-                    chatSnapShot.data!.docs.map((DocumentSnapshot document) {
-                  return MessageBubble((document.data() as Map)['text'], (document.data() as Map)['username'],
+                children: chatSnapShot.data!.docs.map((DocumentSnapshot document) {
+                  return MessageBubble(
+                      (document.data() as Map)['text'],
+                      (document.data() as Map)['username'],
+                      (document.data() as Map)['userImage'],
                       (document.data() as Map)['userId'] == user!.uid);
                 }).toList(),
               );

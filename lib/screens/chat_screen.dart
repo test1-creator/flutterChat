@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flashchat/chat/messages.dart';
 import 'package:flashchat/chat/new_messages.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,17 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+
+  @override
+  void initState() {
+    final fbm = FirebaseMessaging.instance;
+    fbm.requestPermission();
+    FirebaseMessaging.onMessage.listen((message) { print(message.toString()); return; });
+    FirebaseMessaging.onMessageOpenedApp.listen((message) { print(message.toString()); return;});
+    fbm.subscribeToTopic('chat');
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

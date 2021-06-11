@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flashchat/widgets/auth_form.dart';
 import 'package:flutter/material.dart';
 
@@ -13,9 +15,9 @@ class _AuthScreenState extends State<AuthScreen> {
   final _auth = FirebaseAuth.instance;
   UserCredential? userCredential;
   String errorMessage = "Error";
-  var _isLoading = false;
+  bool _isLoading = false;
 
-  void _submitAuthForm(String email, String password, String username, bool isLogin, BuildContext ctx) async {
+  void _submitAuthForm(String email, String password, String username, File? image, bool isLogin, BuildContext ctx) async {
     if (isLogin) {
       try {
         setState(() {
@@ -42,12 +44,17 @@ class _AuthScreenState extends State<AuthScreen> {
       }
     } else {
       try {
-        userCredential = await _auth.createUserWithEmailAndPassword(
-            email: email, password: password);
+        userCredential = await _auth.createUserWithEmailAndPassword(email: email, password: password);
+
+        final ref = FirebaseStorage.instance.ref().child('user_images').child(userCredential!.user!.uid + '.jpg');
+        await ref.putFile(image!);
+        final url = await ref.getDownloadURL();
+
         await FirebaseFirestore.instance.collection('users').doc(userCredential!.user!.uid).set(
             {
               'username': username,
               'email': email,
+              'image_url': url,
             });
       } on FirebaseAuthException catch (e) {
         if (e.code == 'weak-password') {
